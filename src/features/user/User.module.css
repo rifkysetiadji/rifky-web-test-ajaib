@@ -1,0 +1,9 @@
+.user-container{
+    width: 70%;
+    margin: auto;
+    margin-top: 50px;
+}
+.btn-remove-capital{
+    text-transform: none!important;
+    font-weight: bold!important;
+  }

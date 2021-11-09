@@ -1,0 +1,85 @@
+import React,{useEffect,useState} from 'react'
+import SearchTable from 'components/SearchTable'
+import style from './User.module.css'
+import { makeStyles } from '@mui/styles'
+import { FormControl,InputLabel,Select,MenuItem,Button } from '@mui/material'
+import DataTable from './DataTable'
+import { useDispatch,useSelector } from 'react-redux'
+import { fetchUser } from './UserSlice'
+import { debounce } from 'lodash'
+const useStyles = makeStyles(theme => ({
+    textField: {
+      [`& fieldset`]: {
+        borderRadius: 5,
+ 
+      },
+      width:'100%',
+      marginBottom:15,
+      
+  },
+  
+}));
+export default function User() {
+    const classes = useStyles()
+    const dispatch = useDispatch()
+    const user = useSelector(state => state.user)
+    const [search, setSearch] = useState('')
+    const [page, setPage] = useState(1)
+    const [filterbygender, setFilterbygender] = useState('all')
+    useEffect(() => {
+        dispatch(fetchUser(`?page=${page}&results=10`))
+    }, [])
+    const searchToggle=debounce(async (value)=>{
+        if(value!==''){
+            setSearch(value)
+            dispatch(fetchUser(`?page=${page}&results=10&keyword=${value}${filterbygender!=='all'?`&gender=${filterbygender}`:''}`))
+        }
+        
+    },1000)
+    const onChangeGender=(value)=>{
+        setFilterbygender(value)
+        dispatch(fetchUser(`?page=${page}&results=10${search!==''?`&keyword=${search}`:''}${value!=='all'?`&gender=${value}`:''}`))
+    }
+    const onChangePagination=(newpage)=>{
+        setPage(newpage)
+        dispatch(fetchUser(`?page=${newpage}&results=10${search!==''?`&keyword=${search}`:''}${filterbygender!=='all'?`&gender=${filterbygender}`:''}`))
+    }
+    const resetFilter=()=>{
+        setSearch('')
+        setPage(1)
+        setFilterbygender('all')
+        dispatch(fetchUser(`?page=${1}&results=10`))
+    }
+    return (
+        <div>
+            <div className={style['user-container']}>
+                <form>
+                <div style={{display:'flex'}}>
+                <SearchTable searchToggle={searchToggle} height={40}/>
+                &nbsp;&nbsp;
+                <div style={{width:'30%'}}>
+                    <FormControl  size='small' variant='outlined' className={classes.textField}>
+                        <InputLabel id="demo-simple-select-label">Gender</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={filterbygender}
+                            onChange={(e)=>onChangeGender(e.target.value)}
+                            label="gender"
+                        >
+                            <MenuItem value="all">All</MenuItem>
+                            <MenuItem value="male">Male</MenuItem>
+                            <MenuItem value="female">Female</MenuItem>
+                        </Select>
+                    </FormControl>
+                </div>
+                &nbsp;&nbsp;
+                <Button type="reset" onClick={resetFilter} variant="outlined" className={style['btn-remove-capital']}>Reset Filter</Button>
+                </div>
+                </form>
+                <br/>
+                <DataTable onChangePagination={onChangePagination} page={page} setPage={setPage} users={user.users} loading={user.status==="loading"}/> 
+            </div>
+        </div>
+    )
+}
