@@ -29,7 +29,7 @@ export default function User() {
     useEffect(() => {
         dispatch(fetchUser(`?page=${page}&results=10`))
     }, [])
-    const searchToggle=debounce(async (value)=>{
+    const onChange=debounce(async (value)=>{
         if(value!==''){
             setSearch(value)
             dispatch(fetchUser(`?page=${page}&results=10&keyword=${value}${filterbygender!=='all'?`&gender=${filterbygender}`:''}`))
@@ -52,10 +52,10 @@ export default function User() {
     }
     return (
         <div>
-            <div className={style['user-container']}>
+            <div data-testid="user-container" className={style['user-container']}>
                 <form>
                 <div style={{display:'flex'}}>
-                <SearchTable searchToggle={searchToggle} height={40}/>
+                <SearchTable data-testid="field-search" onChange={onChange} height={40}/>
                 &nbsp;&nbsp;
                 <div style={{width:'30%'}}>
                     <FormControl  size='small' variant='outlined' className={classes.textField}>
@@ -78,7 +78,7 @@ export default function User() {
                 </div>
                 </form>
                 <br/>
-                <DataTable onChangePagination={onChangePagination} page={page} setPage={setPage} users={user.users} loading={user.status==="loading"}/> 
+                <DataTable  onChangePagination={onChangePagination} page={page} setPage={setPage} users={user.users} loading={user.status==="loading"}/> 
             </div>
         </div>
     )

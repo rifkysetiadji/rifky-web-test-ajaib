@@ -32,7 +32,7 @@ export default function DataTable(props) {
         setrows(new_rows)
     }, [users])
     return (
-        <div style={{ width: '100%' }}>
+        <div data-testid="data-table" style={{ width: '100%' }}>
             <DataGrid
                 rows={rows}
                 columns={columns}
@@ -42,6 +42,7 @@ export default function DataTable(props) {
                 autoHeight
                 density="comfortable"
                 hideFooter
+                
                 
             />
             <br/>
