@@ -16,7 +16,7 @@ const columns = [
 export default function DataTable(props) {
     
     const [rows, setrows] = useState([])
-    let {loading,users,onChangePagination}=props
+    let {loading,users,onChangePagination,page}=props
     useEffect(() => {
         let new_rows=[]
         users.map((d,i)=>{
@@ -42,12 +42,10 @@ export default function DataTable(props) {
                 autoHeight
                 density="comfortable"
                 hideFooter
-                
-                
             />
             <br/>
             <div style={{display:'flex',justifyContent:'flex-end',}}>
-            <Pagination onChange={(e,page)=>onChangePagination(page)} count={100} shape="rounded" />
+            <Pagination  data-testid="pagination" onChange={(e,p)=>onChangePagination(p)} count={100} shape="rounded" />
             </div>
         </div>
     )

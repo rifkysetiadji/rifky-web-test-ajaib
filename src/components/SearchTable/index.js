@@ -13,7 +13,7 @@ const SearchTable=React.memo((props)=>{
                 {...props}
                 style={{height:height,width:width,borderRadius:borderRadius}}
                 id="input-with-icon-textfield"
-                name='password'
+                name='Search'
                 onChange={(e)=>props.onChange(e.target.value)}
                 // onKeyPress={e =>props.handleKeyPress(e)}
                 required

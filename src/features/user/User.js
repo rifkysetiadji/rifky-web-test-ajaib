@@ -28,21 +28,22 @@ export default function User() {
     const [filterbygender, setFilterbygender] = useState('all')
     useEffect(() => {
         dispatch(fetchUser(`?page=${page}&results=10`))
-    }, [])
-    const onChange=debounce(async (value)=>{
-        if(value!==''){
-            setSearch(value)
-            dispatch(fetchUser(`?page=${page}&results=10&keyword=${value}${filterbygender!=='all'?`&gender=${filterbygender}`:''}`))
+    }, [])  
+    const onChange=(value)=>{
+        setSearch(value)
+    }
+    const onClickSearch=()=>{
+        if(search!==''){
+            dispatch(fetchUser(`?page=${page}&results=10&keyword=${search}${filterbygender!=='all'?`&gender=${filterbygender}`:''}`))
         }
-        
-    },1000)
+    }
     const onChangeGender=(value)=>{
         setFilterbygender(value)
         dispatch(fetchUser(`?page=${page}&results=10${search!==''?`&keyword=${search}`:''}${value!=='all'?`&gender=${value}`:''}`))
     }
-    const onChangePagination=(newpage)=>{
-        setPage(newpage)
-        dispatch(fetchUser(`?page=${newpage}&results=10${search!==''?`&keyword=${search}`:''}${filterbygender!=='all'?`&gender=${filterbygender}`:''}`))
+    const onChangePagination=(page)=>{
+        setPage(page)
+        dispatch(fetchUser(`?page=${page}&results=10${search!==''?`&keyword=${search}`:''}${filterbygender!=='all'?`&gender=${filterbygender}`:''}`))
     }
     const resetFilter=()=>{
         setSearch('')
@@ -55,10 +56,15 @@ export default function User() {
             <div data-testid="user-container" className={style['user-container']}>
                 <form>
                 <div style={{display:'flex'}}>
-                <SearchTable data-testid="field-search" onChange={onChange} height={40}/>
+                <div style={{display:'flex'}}>
+                    <SearchTable inputProps={{ "data-testid": "field-search" }} value={search}  onChange={onChange} height={40}/>
+                    &nbsp;&nbsp;
+                    <Button data-testid="btn-search" onClick={onClickSearch}  variant="outlined" className={style['btn-remove-capital']}>Search</Button>
+                    
+                </div>
                 &nbsp;&nbsp;
                 <div style={{width:'30%'}}>
-                    <FormControl  size='small' variant='outlined' className={classes.textField}>
+                    <FormControl   size='small' variant='outlined' className={classes.textField}>
                         <InputLabel id="demo-simple-select-label">Gender</InputLabel>
                         <Select
                             labelId="demo-simple-select-label"
@@ -66,6 +72,7 @@ export default function User() {
                             value={filterbygender}
                             onChange={(e)=>onChangeGender(e.target.value)}
                             label="gender"
+                            inputProps={{ "data-testid": "field-gender" }}
                         >
                             <MenuItem value="all">All</MenuItem>
                             <MenuItem value="male">Male</MenuItem>
@@ -78,7 +85,7 @@ export default function User() {
                 </div>
                 </form>
                 <br/>
-                <DataTable  onChangePagination={onChangePagination} page={page} setPage={setPage} users={user.users} loading={user.status==="loading"}/> 
+                <DataTable   onChangePagination={onChangePagination} page={page} setPage={setPage} users={user.users} loading={user.status==="loading"}/> 
             </div>
         </div>
     )
