@@ -1,9 +1,10 @@
 import React from 'react'
 import { render,screen,fireEvent,createEvent } from '../../app/test-utils';
 import User from './User'
+import App from 'App';
 import { configureStore } from '@reduxjs/toolkit';
 import UserSlice from 'features/user/UserSlice';
-import reducer, {initialState}  from 'features/user/UserSlice'
+import reducer, {fetchUser}  from 'features/user/UserSlice'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 let all_dumm=[
@@ -130,29 +131,73 @@ export const handlers = [
         let gender = query.get('all')
         let d=[]
         if(!gender&&!keyword){
-            d=all_dumm
-            // console.log('from all')
+            return res(
+                ctx.json({
+                    info:{
+                      "seed": "c92fe7423aac049d",
+                      "results": 10,
+                      "page": 1,
+                      "version": "1.3"
+                    },
+                    results:all_dumm
+                }),ctx.delay(150))
         }
         if(gender){
-            d=all_dumm.filter((d)=>{return d.gender==='female'})
+            console.log('from gender')
+            // d=all_dumm.filter((d)=>{return d.gender==='female'})
+            return res(
+                ctx.json({
+                    info:{
+                      "seed": "c92fe7423aac049d",
+                      "results": 10,
+                      "page": 1,
+                      "version": "1.3"
+                    },
+                    results:[all_dumm[0]]
+                }))
         }
         if(keyword){
-            d = all_dumm.filter(d=>{return d.name.first === 'Julia'})
-            console.log('from keyword')
+            // console.log('from keyword')
+
+            // d = all_dumm.filter(d=>{return d.name.first === 'Julia'})
+            return res(
+                ctx.json({
+                    info:{
+                      "seed": "c92fe7423aac049d",
+                      "results": 10,
+                      "page": 1,
+                      "version": "1.3"
+                    },
+                    results:[all_dumm[1]]
+                }))
         }
         if(gender&&keyword){
-            d = all_dumm.filter((d)=>{return d.gender==='female' &&d.name.first==='Julia'})
+            return res(
+                ctx.json({
+                    info:{
+                      "seed": "c92fe7423aac049d",
+                      "results": 10,
+                      "page": 1,
+                      "version": "1.3"
+                    },
+                    results:[all_dumm[0]]
+                }))
+            // console.log('from gender keyword')
+            // d = all_dumm.filter((d)=>{return d.gender==='female' &&d.name.first==='Julia'})
+            
         }
-      return res(
-          ctx.json({
-              info:{
-                "seed": "c92fe7423aac049d",
-                "results": 10,
-                "page": 1,
-                "version": "1.3"
-              },
-              results:d
-          }), ctx.delay(150))
+        // return res(
+        //     ctx.json({
+        //         info:{
+        //           "seed": "c92fe7423aac049d",
+        //           "results": 10,
+        //           "page": 1,
+        //           "version": "1.3"
+        //         },
+        //         results:d
+        //     }))
+        // console.log(`keyword`, keyword)
+      
     })
   ]
 const server = setupServer(...handlers)
@@ -189,26 +234,27 @@ afterAll(() => server.close())
 //         expect(await screen.findByText(/Logan Novak/i)).toBeInTheDocument()
 //     })
 // })
-describe("Component Search",()=>{
-    
-
-    // test("render field search",()=>{
-    //     // let utils = render(<User/>)
-    //     expect(utils.getByTestId('field-search')).toBeTruthy()
-    // })
-    test("search by type field search",async ()=>{
-        let utils=render(<User/>)
-        let field = utils.getByTestId('field-search')
-        let btn = utils.getByTestId('btn-search')
-        fireEvent.change(field,{target : {value : 'Julia'}})
-        fireEvent.click(btn)
-        // screen.debug()
-        
-        expect(await utils.findByText(/Julia/i)).toBeInTheDocument()
-        expect(await utils.queryByText(/Logan/i)).not.toBeInTheDocument()
-
-    })
+// beforeEach(()=>{
+//     render(<App/>)
+// })
+let utils
+beforeEach(()=>{
+    utils = render(<User/>)
 })
+// test("hihi",async ()=>{
+    // let utils=render(<App/>)
+    // expect(await utils.findByText(/Logan/i)).toBeInTheDocument()
+    // expect(await utils.findByText(/Julia/i)).toBeInTheDocument()
+// })
+// test("asdf",async ()=>{
+//     // let utils= render(<App/>)
+//     let field =  utils.getByTestId('field-search')
+//     let btn =  utils.getByTestId('btn-search')
+//      fireEvent.change(field,{target : {value : 'Julia'}})
+//      fireEvent.click(btn)
+//     expect(await (await utils.findAllByText(/Julia/i)).length).toBe(1)
+//     expect(await (await utils.queryAllByText(/Logan/i)).length).toBe(0)
+// })
 
 // describe("Component filter gender",()=>{
 //     test("render field gender",()=>{
@@ -235,3 +281,69 @@ describe("Component Search",()=>{
 //         fireEvent(pagination,event)
 //     })
 // })
+const initialState={
+    users:[],
+    status:'idle'
+}
+render(<User/>)
+test("Test status jadi loading ketika request",async ()=>{
+    const action = {type: fetchUser.pending};
+    const actual= reducer(initialState,action)
+    expect(actual.status).toEqual("loading")
+})
+test("Test fetch user set payload ke users dan tampil ke table",async ()=>{
+    // render(<User/>)
+    const action = {type: fetchUser.fulfilled,payload:{
+        info:{
+            "seed": "c92fe7423aac049d",
+            "results": 10,
+            "page": 1,
+            "version": "1.3"
+          },
+          results:all_dumm
+    }};
+    const actual= reducer(initialState,action)
+    expect(actual.users.length).toEqual(2)
+    expect(actual.status).toEqual('idle')
+    expect(await screen.findByText(/Logan/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Julia/i)).toBeInTheDocument()
+})
+
+test("search",async ()=>{
+    // let utils = render(<User/>)
+    let field =  screen.getByTestId('field-search')
+    let btn =  screen.getByTestId('btn-search')
+    fireEvent.change(field,{target : {value : 'Julia'}})
+    fireEvent.click(btn)
+    const action = {type: fetchUser.fulfilled,payload:{
+        info:{
+            "seed": "c92fe7423aac049d",
+            "results": 10,
+            "page": 1,
+            "version": "1.3"
+          },
+          results:[all_dumm[1]]
+    }};
+    const actual= reducer(initialState,action)
+    expect(actual.users.length).toEqual(1)
+    expect(await (await utils.findAllByText(/Julia/i)).length).toBe(1)
+    expect(await (await utils.queryAllByText(/Logan/i)).length).toBe(0)
+})
+
+test("filter by gender",async ()=>{
+    let field = utils.getByTestId('field-gender')
+    fireEvent.change(field,{target : {value : 'male'}})
+    const action = {type: fetchUser.fulfilled,payload:{
+        info:{
+            "seed": "c92fe7423aac049d",
+            "results": 10,
+            "page": 1,
+            "version": "1.3"
+          },
+          results:[all_dumm[0]]
+    }};
+    const actual= reducer(initialState,action)
+    expect(actual.users).toEqual([
+        all_dumm[0]
+    ])
+})
