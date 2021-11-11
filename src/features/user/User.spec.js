@@ -143,8 +143,6 @@ export const handlers = [
                 }),ctx.delay(150))
         }
         if(gender){
-            console.log('from gender')
-            // d=all_dumm.filter((d)=>{return d.gender==='female'})
             return res(
                 ctx.json({
                     info:{
@@ -157,9 +155,6 @@ export const handlers = [
                 }))
         }
         if(keyword){
-            // console.log('from keyword')
-
-            // d = all_dumm.filter(d=>{return d.name.first === 'Julia'})
             return res(
                 ctx.json({
                     info:{
@@ -182,27 +177,11 @@ export const handlers = [
                     },
                     results:[all_dumm[0]]
                 }))
-            // console.log('from gender keyword')
-            // d = all_dumm.filter((d)=>{return d.gender==='female' &&d.name.first==='Julia'})
-            
         }
-        // return res(
-        //     ctx.json({
-        //         info:{
-        //           "seed": "c92fe7423aac049d",
-        //           "results": 10,
-        //           "page": 1,
-        //           "version": "1.3"
-        //         },
-        //         results:d
-        //     }))
-        // console.log(`keyword`, keyword)
-      
     })
   ]
 const server = setupServer(...handlers)
 let store;
-// let utils=render(<User/>);
 beforeEach(()=>{
     store = configureStore({
         reducer:{
@@ -210,82 +189,19 @@ beforeEach(()=>{
         }
     })
 })
-// beforeEach(()=>{
-//     utils=render(<User/>)
-// })
+
 beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
-// test("render page user",()=>{
-//     render(<User/>)
-//     expect(screen.getByTestId('user-container')).toBeTruthy()
-// })
-// describe("User Slice",()=>{
-//     test("should return initial state on first run",()=>{
-//         const nextState= initialState;
-
-//         const result = reducer(undefined,{})
-
-//         expect(result).toEqual(nextState)
-//     })
-//     test("should return row table from fetch",async ()=>{
-//         render(<User/>)
-//         expect(await screen.findByText(/Logan Novak/i)).toBeInTheDocument()
-//     })
-// })
-// beforeEach(()=>{
-//     render(<App/>)
-// })
-let utils
 beforeEach(()=>{
-    utils = render(<User/>)
+    render(<User/>)
 })
-// test("hihi",async ()=>{
-    // let utils=render(<App/>)
-    // expect(await utils.findByText(/Logan/i)).toBeInTheDocument()
-    // expect(await utils.findByText(/Julia/i)).toBeInTheDocument()
-// })
-// test("asdf",async ()=>{
-//     // let utils= render(<App/>)
-//     let field =  utils.getByTestId('field-search')
-//     let btn =  utils.getByTestId('btn-search')
-//      fireEvent.change(field,{target : {value : 'Julia'}})
-//      fireEvent.click(btn)
-//     expect(await (await utils.findAllByText(/Julia/i)).length).toBe(1)
-//     expect(await (await utils.queryAllByText(/Logan/i)).length).toBe(0)
-// })
 
-// describe("Component filter gender",()=>{
-//     test("render field gender",()=>{
-//         render(<User/>)
-//         expect(screen.getByTestId('field-gender')).toBeTruthy()
-//     })
-//     test("search by gender",async ()=>{
-//         let utils = render(<User/>)
-//         let field = utils.getByTestId('field-gender')
-//         fireEvent.change(field,{target : {value : 'female'}})
-//         expect(await utils.findByText(/female/i)).toBeInTheDocument()
-//     })
-// })
-
-// describe("Component pagination",()=>{
-//     test("render pagination",()=>{
-//         render(<User/>)
-//         expect(screen.getByTestId('pagination')).toBeTruthy()
-//     })
-//     test("move page",()=>{
-//         let utils = render(<User/>)
-//         let pagination = utils.getByTestId('pagination')
-//         const event= createEvent.change(pagination,{page:{value:2}})
-//         fireEvent(pagination,event)
-//     })
-// })
 const initialState={
     users:[],
     status:'idle'
 }
-render(<User/>)
 test("Test status jadi loading ketika request",async ()=>{
     const action = {type: fetchUser.pending};
     const actual= reducer(initialState,action)
@@ -326,12 +242,12 @@ test("search",async ()=>{
     }};
     const actual= reducer(initialState,action)
     expect(actual.users.length).toEqual(1)
-    expect(await (await utils.findAllByText(/Julia/i)).length).toBe(1)
-    expect(await (await utils.queryAllByText(/Logan/i)).length).toBe(0)
+    expect(await (await screen.findAllByText(/Julia/i)).length).toBe(1)
+    expect(await (await screen.queryAllByText(/Logan/i)).length).toBe(0)
 })
 
 test("filter by gender",async ()=>{
-    let field = utils.getByTestId('field-gender')
+    let field = screen.getByTestId('field-gender')
     fireEvent.change(field,{target : {value : 'male'}})
     const action = {type: fetchUser.fulfilled,payload:{
         info:{
